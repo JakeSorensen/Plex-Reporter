@@ -2,3 +2,7 @@ Plex Reporter Script - Changelog
 --------------------------------
 
 0.1	- Initial release
+
+0.2	- Added numerous safety checks
+	- Added ability to disable performing DNS lookups (for speed)
+	- Fixed issue with cat command and spaces in the logfile name

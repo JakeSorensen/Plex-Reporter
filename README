@@ -14,7 +14,13 @@ Requirements
 - Curl 			(will move to LWP at some point)
 - Grep/Sed 		(who doesnt have these installed?)
 
-The script has been developed for use on a Linux system, however if you have Perl installed on a Mac (and the required perl modules) it should work. It may even work on a Windows system, however I have no intention of testing that...
+The script has been developed for use on a Linux system, however if you have Perl installed on a Mac (and the required perl modules listed below) it should work. It may even work on a Windows system, however I have no intention of testing that...
+
+If you are planning to run this on a Mac, you will need macports installed, and then the following packages:
+- perl5.14
+- p5.14-mime-lite
+- p5.14-xml-simple
+
 
 Usage
 -----
