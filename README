@@ -3,21 +3,24 @@ Plex Reporter Script - stu@lifeofstu.com
 
 PRS is a very simple script designed to show which clients have accessed what files on your server on the day you run it. It will output to the console what files have been accessed, and if you have configured the script with some email details (and your server/perl is capable of sending emails) it will also email you the information.
 
+You can also specify a date to check (rather than todays) if you want, see the usage instructions below.
+
 
 Requirements
 ------------
 
 - Plex Media Server 	(tested with 0.9.5.2 on Linux)
 - Perl 			(any 5.x release should work)
+- LWP			(Perl module, available in most distros)
 - MIME::Lite		(Perl module, available in most distros)
 - XML::Simple		(Perl module, available in most distros)
-- Curl 			(will move to LWP at some point)
 - Grep/Sed 		(who doesnt have these installed?)
 
 The script has been developed for use on a Linux system, however if you have Perl installed on a Mac (and the required perl modules listed below) it should work. It may even work on a Windows system, however I have no intention of testing that...
 
 If you are planning to run this on a Mac, you will need macports installed, and then the following packages:
 - perl5.14
+- p5.14-libwww-perl
 - p5.14-mime-lite
 - p5.14-xml-simple
 
@@ -28,6 +31,11 @@ Usage
 - Edit the script and change the documented variables at the top
 - ./plex-reporter.pl
 - Enjoy :-)
+
+If you want to specify a date, use the following syntax:
+  ./plex-reporter.pl -d "Jan 02, 2011"
+
+Note: The formatting of the date is important as it is what you grep the logfile for
 
 
 License

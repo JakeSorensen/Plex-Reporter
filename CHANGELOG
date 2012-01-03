@@ -8,3 +8,12 @@ Plex Reporter Script - Changelog
 	- Fixed issue with cat command and spaces in the logfile name
 
 0.2a	- Fixed issue with date not being formatted correctly (hence no reports)
+
+0.3	- Added support for specifying a date to check
+	- Added a lot more safety checking
+	- Added support for entries where the files have been replaced (avi to mkv etc)
+	- Added a variable to specify the port that Plex is listening on
+	- Removed use of cat command
+	- Removed use of curl (LWP is now used)
+        - Changed default logfile name (to the default on Linux)
+	- General code cleanup
