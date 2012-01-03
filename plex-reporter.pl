@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2011, Stuart Hopkins
-# Version 0.2
+# Version 0.2a
 
 use strict;
 use File::Basename;
@@ -37,7 +37,7 @@ sub plex_die(){
 }
 
 # Start
-print "Plex Reporter Script - Version 0.2\n\n";
+print "Plex Reporter Script - Version 0.2a\n\n";
 
 # Sanity check
 length($plex_server)  || &plex_die("The plex_server variable is empty, edit this script");
@@ -54,7 +54,10 @@ my $email_subject = "";
 my $email_text = "";
 
 # Create string of current date to grep for (daily reporting)
-my $curdate = strftime "%b %e, %Y", gmtime;
+my $curdate = sprintf("%s %02i, %i",
+        (strftime "%b", gmtime),
+        (strftime "%e", gmtime),
+        (strftime "%Y", gmtime));
 
 # Fetch all of the IP addresses that have connected to the server
 my @plex_clients = `cat "$plex_logfile" | grep '^$curdate ' | grep 'progress?key' | sed -e 's/^.*\\[.*\\].*\\[\\(.*\\)\\].*/\\1/g' | sort | uniq`;
