@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2011, Stuart Hopkins
-# Version 0.3
+# Version 0.4
 
 use strict;
 use File::Basename;
@@ -24,6 +24,9 @@ my $plex_dnslookup = 1;
 ## If you dont want to send an email, set one of the below to a blank string
 ## Put the IP of your email relay here
 my $email_server = '';
+## Username/Password for email relay (leave blank if not required)
+my $email_username = '';
+my $email_password = '';
 ## Put the sending email address here
 my $email_sender = '';
 ## Put your email recipient here
@@ -69,7 +72,7 @@ my $email_text = "";
 ## MAIN CODE STARTS HERE ##
 ###########################
 
-print "Plex Reporter Script - Version 0.3\n";
+print "Plex Reporter Script - Version 0.4\n";
 
 # Sanity check
 length($plex_server)  || 
@@ -216,7 +219,12 @@ if ( length($email_server) && length($email_receiver) && length($email_sender) )
     Subject  => $email_subject,
     Data     => $email_text
   );
-  $email->send || &plex_die("Failed to send email");
+  if ( length($email_username) && length($email_password) ) {
+    $email->send('smtp', $email_server, AuthUser=>$email_username, 
+      AuthPass=>$email_password) || &plex_die("Failed to send email");
+  } else {
+    $email->send('smtp', $email_server) || &plex_die("Failed to send email");
+  }
   print "Email sent successfully\n";
 }
 

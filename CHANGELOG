@@ -17,3 +17,6 @@ Plex Reporter Script - Changelog
 	- Removed use of curl (LWP is now used)
         - Changed default logfile name (to the default on Linux)
 	- General code cleanup
+
+0.4	- Fixed broken SMTP relay setting
+	- Added support for SMTP authentication
