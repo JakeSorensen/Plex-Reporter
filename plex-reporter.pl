@@ -179,10 +179,10 @@ foreach my $plex_client (sort keys %plex_clients) {
   print "\nExamining activity for client: $plex_client ($tmp_clientname)\n";
   $tmp_emailtxt .= "Activity for client: $plex_client ($tmp_clientname)\n";
   # Loop through each of the date entries (in case we found multiple)
-  foreach my $plex_date ( keys $plex_clients{$plex_client} ) {
+  foreach my $plex_date ( keys %{$plex_clients{$plex_client}} ) {
     printf "  - %i video file(s) have been accessed on '%s' by this client\n",
-      scalar(keys $plex_clients{$plex_client}), $plex_date;
-    $tmp_emailtxt .= "  - " . scalar(keys $plex_clients{$plex_client}) . " file(s) have been accessed on '$plex_date' by this client\n";
+      scalar(keys %{$plex_clients{$plex_client}}), $plex_date;
+    $tmp_emailtxt .= "  - " . scalar(keys %{$plex_clients{$plex_client}}) . " file(s) have been accessed on '$plex_date' by this client\n";
     # Loop through each of the plex items for this date
     foreach my $plex_item ( $plex_clients{$plex_client}->{$plex_date} ) {
       my $vid_fname;
