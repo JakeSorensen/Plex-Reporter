@@ -14,7 +14,6 @@ Requirements
 - LWP			(Perl module, available in most distros)
 - MIME::Lite		(Perl module, available in most distros)
 - XML::Simple		(Perl module, available in most distros)
-- Grep/Sed 		(who doesnt have these installed?)
 
 The script has been developed for use on a Linux system, however if you have Perl installed on a Mac (and the required perl modules listed below) it should work. It may even work on a Windows system, however I have no intention of testing that...
 
@@ -32,8 +31,11 @@ Usage
 - ./plex-reporter.pl
 - Enjoy :-)
 
-If you want to specify a date, use the following syntax:
-  ./plex-reporter.pl -d "Jan 02, 2011"
+If you want to specify a date (other than todays), use the following syntax:
+  ./plex-reporter.pl -d "Jan 02, 2012"
+
+If you want to specify all dates in a month, use the following syntax:
+  ./plex-reporter.pl -d "Jan [0-9][0-9], 2012"
 
 Note: The formatting of the date is important as it is what you grep the logfile for
 

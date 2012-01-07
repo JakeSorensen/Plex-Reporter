@@ -20,3 +20,10 @@ Plex Reporter Script - Changelog
 
 0.4	- Fixed broken SMTP relay setting
 	- Added support for SMTP authentication
+
+0.5	- Fixed remote clients not being handled
+	- Added support for multiple log files
+	- Added support for using a regex to specify search date
+	- Added an option not to warn if a media file is missing
+	- Remove dependency on external grep/sed (now all done in Perl)
+	- Tidied up the code a bit
