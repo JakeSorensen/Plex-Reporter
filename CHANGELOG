@@ -27,3 +27,6 @@ Plex Reporter Script - Changelog
 	- Added an option not to warn if a media file is missing
 	- Remove dependency on external grep/sed (now all done in Perl)
 	- Tidied up the code a bit
+
+0.6	- Fixed issue with only one media entry per client (bug with 0.5 release)
+	- Added option to disable looking up media info (useful for testing)
