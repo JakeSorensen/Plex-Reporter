@@ -30,3 +30,10 @@ Plex Reporter Script - Changelog
 
 0.6	- Fixed issue with only one media entry per client (bug with 0.5 release)
 	- Added option to disable looking up media info (useful for testing)
+
+0.7	- Added checking to see if a local PMS is running
+	- Added automatic log entries for Linux/Mac OSX
+
+0.8	- Fixed issue with clients not using DirectPlay
+	- Fixed displaying remote clients connections (hopefully!)
+	- Sorted the output of played files per client

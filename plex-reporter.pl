@@ -2,25 +2,21 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 0.6
+# Version 0.8
 
 use strict;
 use File::Basename;
+use IO::Socket;
 use MIME::Lite;
 use LWP;
 use POSIX qw(strftime);
-use Socket;
 use XML::Simple;
 
 ## Put the IP and Port of your Plex server here
 my $plex_server = '127.0.0.1';
 my $plex_port   = '32400';
-## Put the locations of your Plex logfiles here
-## TIP: Use the older log first so its in date order
-my @plex_logfiles = ( '/var/lib/plexmediaserver/Library/Application Support' .
-                      '/Plex Media Server/Logs/Plex Media Server.old.log',
-                      '/var/lib/plexmediaserver/Library/Application Support' .
-                      '/Plex Media Server/Logs/Plex Media Server.log' );
+## If you use any custom plex logfiles, specify it here
+my @plex_customlogs = ();
 
 ## If you want to look up the hostnames of the clients, set to 1
 my $plex_dnslookup = 1;
@@ -44,11 +40,46 @@ my $email_receiver = '';
 ## TOUCH NOTHING BELOW THIS LINE ##
 ###################################
 
+## Variables
+my $curdate = sprintf("%s %02i, %i",
+        (strftime "%b", gmtime),
+        (strftime "%e", gmtime),
+        (strftime "%Y", gmtime));
+my $curuser = $ENV{LOGNAME} || $ENV{USER} || getpwuid($<);
+my $email;
+my $email_client_text = "";
+my $email_subject = "";
+my $email_text = "";
+my %plex_clients;
+my $plex_socket;
+my @plex_logfiles = ( '/var/lib/plexmediaserver/Library/Application Support' .
+                      '/Plex Media Server/Logs/Plex Media Server.old.log',
+                      '/var/lib/plexmediaserver/Library/Application Support' .
+                      '/Plex Media Server/Logs/Plex Media Server.log' );
+# Add potential logfiles for OSX
+if ( $curuser ) {
+  push(@plex_logfiles, 
+	"/Users/$curuser/Library/Logs/Plex Media Server.old.log");
+  push(@plex_logfiles, 
+	"/Users/$curuser/Library/Logs/Plex Media Server.log");
+}
+# Add any custom logfiles to the main array
+push(@plex_logfiles, @plex_customlogs);
+
 ## Subroutines
 sub plex_die(){
   # Print an error message then exit with error code 1
   print "ERROR: $_[0]\n";
   exit 1;
+}
+
+sub plex_noserver() {
+  # Called when a local PMS doesnt appear to be running
+  print "WARNING: Plex Media Server does not appear to be running\n";
+  $plex_medialookup = 0;
+  if ( $plex_socket ) {
+    close($plex_socket) || &plex_die("Failed to close TCP socket");
+  }
 }
 
 sub plex_showHelp(){
@@ -67,22 +98,12 @@ Ensure you have customised (edited) the script before running.
 EOF
 }
 
-## Variables
-my $curdate = sprintf("%s %02i, %i",
-        (strftime "%b", gmtime),
-        (strftime "%e", gmtime),
-        (strftime "%Y", gmtime));
-my $email;
-my $email_client_text = "";
-my $email_subject = "";
-my $email_text = "";
-my %plex_clients;
 
 ###########################
 ## MAIN CODE STARTS HERE ##
 ###########################
 
-print "Plex Reporter Script - Version 0.6\n";
+print "Plex Reporter Script - Version 0.8\n";
 
 # Sanity check
 length($plex_server)  || 
@@ -125,6 +146,18 @@ while ($ARGV[0]) {
 # Print the date that is being used for the reporting
 print "- Using date: $curdate\n";
 
+# If media lookup is enabled, and the script is on the PMS, check connectivity
+if ( $plex_medialookup ) {
+  if ( $plex_server eq "127.0.0.1" || $plex_server eq "localhost" ) {
+    # Easiest way to check is to try and open the plex port
+    $plex_socket = new IO::Socket::INET(LocalHost => "$plex_server", 
+					LocalPort => "$plex_port",
+					Proto => 'tcp',
+					Listen => 1,
+					Reuse => 1 ) && &plex_noserver;
+  }
+}
+
 # Notify if running in offline mode
 if ( ! $plex_medialookup ) {
   print "- Running in offline mode\n";
@@ -142,17 +175,20 @@ foreach my $plex_lf ( @plex_logfiles ) {
       # Remove any newline character
       chomp($log_line);
       if ( $log_line !~ /$curdate.+progress\?key.+state=playing/i &&
-           $log_line !~ /$curdate.+progress\?X-Plex-Token=.+state=playing/i ) {
+           $log_line !~ /$curdate.+progress\?X-Plex-Token=/i &&
+           $log_line !~ /$curdate.+GET\ \/library\/metadata\/[0-9]+\?X-Plex-Token=.*\[[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\]/i ) {
         # Not interested, wrong type of log line
         next;
       }
       # Right type of line, grab the Date, Media Key, IP address
       my $tmp_line = $log_line;
-      $tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+[\?\&]key=([0-9]+).+\[([0-9\.]+)\].+$/$1|$2|$3/i;
+      if ( $tmp_line =~ /GET\ \/library\/metadata\// ) {
+        $tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+GET\ \/library\/metadata\/([0-9]+).*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2|$3/i;
+      } else {
+        $tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+[\?\&]key=([0-9]+).+\[([0-9\.]+)\].+$/$1|$2|$3/i;
+      }
       my ($tmp_date, $tmp_key, $tmp_ip) = split(/\|/, $tmp_line);
-      chomp($tmp_date);
-      chomp($tmp_key);
-      chomp($tmp_ip);
+      chomp($tmp_date); chomp($tmp_key); chomp($tmp_ip);
       ( length($tmp_date) && length($tmp_key) && length($tmp_ip) ) ||
         &plex_die("Failed to retrieve required variables from line: $log_line");
       # Add the details to the client list
@@ -179,6 +215,7 @@ if ( ! keys(%plex_clients) ) {
 foreach my $plex_client (sort keys %plex_clients) {
   my $tmp_emailtxt = "";
   my $tmp_clientname;
+  my @tmp_array;
   # Attempt to lookup the hostname of the client (if enabled)
   if ( $plex_dnslookup ) {
     $tmp_clientname = gethostbyaddr(inet_aton("$plex_client"), AF_INET) || ($tmp_clientname = "Unknown");
@@ -244,26 +281,36 @@ foreach my $plex_client (sort keys %plex_clients) {
             &plex_die("Failed to calculate basename from file: " . $vid_fname);;
         } 
 
-        # Print the filename to the screen
-        printf "    %s\n", $vid_fname;
-        # Add the details to the temp email text
-        $tmp_emailtxt .= "    $vid_fname\n";
+	# Add the filename to the array
+	push(@tmp_array, $vid_fname);
 
       } else {
-        # Connecting to the server is disabled (offline mode)
-        printf "    Item: %s\n", $plex_item;
-        $tmp_emailtxt .= "    Item: $plex_item\n";
+        # Connecting to the server is disabled (offline mode), just the item number
+        push(@tmp_array, "Item: $plex_item\n");
       }
 
     }
-    # Add this clients info the global email string
-    $email_client_text .= "\n\n$tmp_emailtxt";
+
+    # Sort the played entry for this client
+    @tmp_array = sort(@tmp_array);
+
+    # Loop through the array, print to screen, add to email text
+    $email_client_text .= "\n\n";
+    foreach my $tmp_fname (@tmp_array) {
+      print "    - $tmp_fname\n";
+      $email_client_text .= "  - $tmp_fname\n";
+    }
+
   }
+
 }
 
 # Construct the daily email
 $email_subject = "Plex daily report - " . gmtime;
 $email_text = "Report for Plex server: $plex_server - " . $curdate . "\n";
+if ( ! $plex_medialookup ) {
+  $email_text .= "Running in offline mode (no media information)\n";
+}
 $email_text .= scalar(keys %plex_clients) . " client(s) accessed your server on the specified date\n";
 $email_text .= $email_client_text;
 $email_text .= "\n\nThat concludes this report.";
