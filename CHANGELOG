@@ -37,3 +37,6 @@ Plex Reporter Script - Changelog
 0.8	- Fixed issue with clients not using DirectPlay
 	- Fixed displaying remote clients connections (hopefully!)
 	- Sorted the output of played files per client
+
+0.9	- Fixed missing client name in email output
+	- Another fix for displaying remote client connections

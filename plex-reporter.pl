@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 0.8
+# Version 0.9
 
 use strict;
 use File::Basename;
@@ -175,15 +175,21 @@ foreach my $plex_lf ( @plex_logfiles ) {
       # Remove any newline character
       chomp($log_line);
       if ( $log_line !~ /$curdate.+progress\?key.+state=playing/i &&
+           $log_line !~ /$curdate.+progress\?key.+X-Plex-Token=/i &&
            $log_line !~ /$curdate.+progress\?X-Plex-Token=/i &&
-           $log_line !~ /$curdate.+GET\ \/library\/metadata\/[0-9]+\?X-Plex-Token=.*\[[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\]/i ) {
+           $log_line !~ /$curdate.+GET\ \/library\/metadata\/[0-9]+\?X-Plex-Token=.*\[[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\]/i &&
+           $log_line !~ /$curdate.+GET\ \/:\/progress\?key=[0-9]+&identifier=com.plexapp.plugins.library&time=[0-9]+/ ) {
         # Not interested, wrong type of log line
         next;
       }
       # Right type of line, grab the Date, Media Key, IP address
       my $tmp_line = $log_line;
       if ( $tmp_line =~ /GET\ \/library\/metadata\// ) {
-        $tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+GET\ \/library\/metadata\/([0-9]+).*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2|$3/i;
+	if ( $tmp_line =~ /progress/ ) {
+		$tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+GET\ \/:\/progress\?key=([0-9]+).*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2|$3/i;
+	} else {
+        	$tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+GET\ \/library\/metadata\/([0-9]+).*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2|$3/i;
+	}
       } else {
         $tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+[\?\&]key=([0-9]+).+\[([0-9\.]+)\].+$/$1|$2|$3/i;
       }
@@ -296,9 +302,10 @@ foreach my $plex_client (sort keys %plex_clients) {
 
     # Loop through the array, print to screen, add to email text
     $email_client_text .= "\n\n";
+    $email_client_text .= "Client: $plex_client ($tmp_clientname)\n";
     foreach my $tmp_fname (@tmp_array) {
       print "    - $tmp_fname\n";
-      $email_client_text .= "  - $tmp_fname\n";
+      $email_client_text .= "   - $tmp_fname\n";
     }
 
   }
