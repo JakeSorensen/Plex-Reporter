@@ -46,3 +46,6 @@ Plex Reporter Script - Changelog
 	- Added preliminary support for 0.9.6 reporting
 
 0.9b	- Fixed broken regex for 0.9.6 clients (additional port number)
+
+0.9c	- Fixed yet another broken regex due to 0.9.6
+	- Added option to enable some debugging

@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 0.9b
+# Version 0.9c
 
 use strict;
 use warnings;
@@ -36,6 +36,9 @@ my $email_password = '';
 my $email_sender = '';
 ## Put your email recipient here
 my $email_receiver = '';
+
+## Enable some debugging messages
+my $DEBUG=0;
 
 ###################################
 ## TOUCH NOTHING BELOW THIS LINE ##
@@ -104,7 +107,7 @@ EOF
 ## MAIN CODE STARTS HERE ##
 ###########################
 
-print "Plex Reporter Script - Version 0.9b\n";
+print "Plex Reporter Script - Version 0.9c\n";
 
 # Sanity check
 length($plex_server)  || 
@@ -188,14 +191,25 @@ foreach my $plex_lf ( @plex_logfiles ) {
       if ( $tmp_line =~ /GET\ \/library\/metadata\// ) {
 	if ( $tmp_line =~ /progress/ ) {
 		$tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+GET\ \/:\/progress\?key=([0-9]+).*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2|$3/i;
+		( $DEBUG ) && print "DEBUG: Type 1: $tmp_line\n";
 	} else {
         	$tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+GET\ \/library\/metadata\/([0-9]+).*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2|$3/i;
+		( $DEBUG ) && print "DEBUG: Type 3: $tmp_line\n";
 	}
       } elsif ( $tmp_line =~ /X-Plex-Client-Platform/ ) {
 	# Plex 0.9.6 - new URL format
 	$tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+\?key=([0-9]+)\&.*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):[0-9]+\].*$/$1|$2|$3/i;
+	( $DEBUG ) && print "DEBUG: Type 4: $tmp_line\n";
       } else {
         $tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+[\?\&]key=([0-9]+).+\[([0-9\.]+)\].+$/$1|$2|$3/i;
+	if ( $tmp_line !~ /.+\|.+\|.+/ ) {
+		# Plex 0.9.6, port number with IP address
+		$tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+GET\ \/:\/progress\?key=([0-9]+).*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):[0-9]+\].*$/$1|$2|$3/i;
+		( $DEBUG ) && print "DEBUG: Type 5: $tmp_line\n";
+#Apr 04, 2012 01:13:24 [0xb038d000] DEBUG - Request: GET /:/progress?key=2396&identifier=com.plexapp.plugins.library&time=398822 [99.0.0.255:53705] (6 live)
+	} else {
+        	( $DEBUG ) && print "DEBUG: Type 6: $tmp_line\n";
+	}
       }
       my ($tmp_date, $tmp_key, $tmp_ip) = split(/\|/, $tmp_line);
       chomp($tmp_date); chomp($tmp_key); chomp($tmp_ip);
