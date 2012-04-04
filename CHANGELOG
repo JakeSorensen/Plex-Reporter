@@ -49,3 +49,5 @@ Plex Reporter Script - Changelog
 
 0.9c	- Fixed yet another broken regex due to 0.9.6
 	- Added option to enable some debugging
+
+0.9d	- Added check to prevent crashing if media entry has been deleted from DB

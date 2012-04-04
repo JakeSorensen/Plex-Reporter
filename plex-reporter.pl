@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 0.9c
+# Version 0.9d
 
 use strict;
 use warnings;
@@ -107,7 +107,7 @@ EOF
 ## MAIN CODE STARTS HERE ##
 ###########################
 
-print "Plex Reporter Script - Version 0.9c\n";
+print "Plex Reporter Script - Version 0.9d\n";
 
 # Sanity check
 length($plex_server)  || 
@@ -262,6 +262,12 @@ foreach my $plex_client (sort keys %plex_clients) {
         # Lookup the video file details
         my $vid_raw = $obj_lwp->get("http://$plex_server:$plex_port/library/metadata/$plex_item") ||
           &plex_die("Failed to retrieve metadata for item: $plex_item");
+        # Check if we received a 404 error (item not found)
+        if ( ! $vid_raw->is_success ) {
+		printf "WARN: Unable to retrieve metadata for item: $plex_item\n";
+		next;
+        }
+	# Import the XML from the request
         my $vid_xml = $obj_xml->XMLin($vid_raw->content) ||
           &plex_die("Failed to import metadata for item: $plex_item\n" . $vid_raw->content);
         if ( $vid_xml->{Video}->{Media}->{Part}->{file} ) {
