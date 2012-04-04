@@ -44,3 +44,5 @@ Plex Reporter Script - Changelog
 0.9a	- Fixed incorrect version number
 	- Changed shebang to use env (makes it work better cross-platform)
 	- Added preliminary support for 0.9.6 reporting
+
+0.9b	- Fixed broken regex for 0.9.6 clients (additional port number)
