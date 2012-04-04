@@ -1,10 +1,11 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 0.9
+# Version 0.9a
 
 use strict;
+use warnings;
 use File::Basename;
 use IO::Socket;
 use MIME::Lite;
@@ -103,7 +104,7 @@ EOF
 ## MAIN CODE STARTS HERE ##
 ###########################
 
-print "Plex Reporter Script - Version 0.8\n";
+print "Plex Reporter Script - Version 0.9a\n";
 
 # Sanity check
 length($plex_server)  || 
@@ -190,6 +191,9 @@ foreach my $plex_lf ( @plex_logfiles ) {
 	} else {
         	$tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+GET\ \/library\/metadata\/([0-9]+).*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2|$3/i;
 	}
+      } elsif ( $tmp_line =~ /X-Plex-Client-Platform/ ) {
+	# Plex 0.9.6 - new URL format
+	$tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+\?key=([0-9]+)\&.*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2|$3/i;
       } else {
         $tmp_line =~ s/^([a-z]+\ [0-9]+,\ [0-9]+).+[\?\&]key=([0-9]+).+\[([0-9\.]+)\].+$/$1|$2|$3/i;
       }

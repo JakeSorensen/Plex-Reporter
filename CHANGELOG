@@ -40,3 +40,7 @@ Plex Reporter Script - Changelog
 
 0.9	- Fixed missing client name in email output
 	- Another fix for displaying remote client connections
+
+0.9a	- Fixed incorrect version number
+	- Changed shebang to use env (makes it work better cross-platform)
+	- Added preliminary support for 0.9.6 reporting
