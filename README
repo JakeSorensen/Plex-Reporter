@@ -11,33 +11,53 @@ Requirements
 
 - Plex Media Server 	(tested with 0.9.5.2 on Linux)
 - Perl 			(any 5.x release should work)
-- LWP			(Perl module, available in most distros)
-- MIME::Lite		(Perl module, available in most distros)
-- XML::Simple		(Perl module, available in most distros)
+- Data::Dumper		(Perl module, available on most distros)
+- DateTime              (Perl module, available on most distros)
+- Date::Calc		(Perl module, available on most distros)
+- File::Basename	(Perl module, available on most distros)
+- IO::Socket		(Perl module, available on most distros)
+- LWP			(Perl module, available on most distros)
+- MIME::Lite		(Perl module, available on most distros)
+- XML::Simple		(Perl module, available on most distros)
 
-The script has been developed for use on a Linux system, however if you have Perl installed on a Mac (and the required perl modules listed below) it should work. It may even work on a Windows system, however I have no intention of testing that...
+The script has been developed for use on a Linux/OSX system. It may even work on a Windows system, however I have no intention of testing that...
 
 If you are planning to run this on a Mac, you will need macports installed, and then the following packages:
-- perl5.14
-- p5.14-libwww-perl
-- p5.14-mime-lite
-- p5.14-xml-simple
+- perl5
+- p5-date-calc
+- p5-datetime
+- p5-libwww-perl
+- p5-mime-lite
+- p5-xml-simple
 
 
 Usage
 -----
 
-- Edit the script and change the documented variables at the top
+- Move the plex-reporter.cfg file to one of the following locations:
+    /etc/plex-reporter.cfg
+    ~/.plex-reporter.cfg
+- Edit the configuration file you just moved and change the documented variables
 - ./plex-reporter.pl
 - Enjoy :-)
 
 If you want to specify a date (other than todays), use the following syntax:
-  ./plex-reporter.pl -d "Jan 02, 2012"
+  ./plex-reporter.pl -d "2012-02-30"
 
 If you want to specify all dates in a month, use the following syntax:
-  ./plex-reporter.pl -d "Jan [0-9][0-9], 2012"
+  ./plex-reporter.pl -r "2012-01-01" "2012-01-31"
+
+If you want XML output, use the following syntax:
+  ./plex-reporter.pl -x test.xml
 
 Note: The formatting of the date is important as it is what you grep the logfile for
+
+
+
+OSX and Cronjobs
+----------------
+
+It's been noted that when running under Mac OSX (as a cronjob) the script doesn't work... This seems to be because /usr/bin/env doesn't work properly. To get around this, edit the top line of the script and change the #! line to point at your actual perl executable (tip: run 'which perl' to find out the path/executable).
 
 
 License

@@ -51,3 +51,23 @@ Plex Reporter Script - Changelog
 	- Added option to enable some debugging
 
 0.9d	- Added check to prevent crashing if media entry has been deleted from DB
+
+0.9e	- Fixed Plex-running check (was opening port on 127.0.0.1 not 0.0.0.0)
+	- Lots of whitespace tidying
+	- Got all lines to below 80 characters long (CHECK THIS)
+
+--------- The 1.0 Milestone!! ---------
+
+1.0	- So many changes and fixes its scary!
+	- Complete code restructuring!
+	- Added plex-reporter.cfg to hold the options
+		> You no longer need to edit the main script!
+	- Added plex-clients.cfg to make client hostnames more readable
+	- Added HTML output (for pretty reports on your webserver)
+		- Also added simple PHP to show what reports you have
+	- Added XML output (feature request)
+	- Output now shows the Plex name for the media item, not the filename
+	- Simplified and enhanced the Plex connection test
+	- Range-reporting is now much easier and much faster
+	- Added ability to generate HTML reports for a date range
+		- In both single or split report format

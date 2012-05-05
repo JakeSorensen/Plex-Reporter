@@ -3,3 +3,14 @@ Plex Reporter Script - Authors
 
 Stuart Hopkins (stu@lifeofstu.com)
 	Script creator, code monkey
+
+Zeph Ponos (zeph.ponos@btinternet.com)
+	HTML designer, regex helper!
+
+
+Credits
+-------
+
+Finally, a BIG thanks to Luke Lanchester for the HTML/CSS code from Plex Exporter
+	https://github.com/Dachande663/Plex-Export
+The web reports are based heavily on the exporter code, so credit to him!

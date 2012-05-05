@@ -1,0 +1,261 @@
+/*
+	Plex Reporter Stylesheet
+	Original Author: Luke Lanchester <luke@lukelanchester.com> (Plex-Export)
+	Adapted by: Zeph Ponos <zeph.ponos@btinternet.com>
+*/
+
+* { margin: 0; padding: 0; border: 0; list-style: none; font-weight: normal; }
+body {
+	font-family: "Arial","Helvetica",sans-serif;
+	font-size: 12px;
+	color: #272B2D;
+	background: #9A9A9A url(../images/background.png);
+}
+.left { float: left; }
+.right { float: right; }
+.hide { display: none; }
+#container {
+	width: 920px;
+	padding: 0 20px;
+	margin: 0 auto;
+	background: url(../images/container-bg.png) repeat-y;
+}
+
+/* HEADER //////////////////////////////////////////////////////////////////////////*/
+
+#header {
+	height: 95px;
+	background: #282B2E;
+	border-bottom: 5px solid #FF9421;
+}
+#header h1 {
+	display: block;
+	float: left;
+	width: 299px;
+	height: 95px;
+	margin-left: 16px;
+	background: url(../images/logo.png) no-repeat;
+}
+#header h1 span { display: none; }
+#header p {
+	float: right;
+	text-align: right;
+	height: 95px;
+	overflow: hidden;
+}
+#header p span {
+	display: block;
+	font-size: 16px;
+	text-transform: uppercase;
+	color: #60666B;
+	padding: 4px 6px 0 0;
+}
+#header p strong {
+	display: block;
+	margin: -12px -6px 0 0;
+	font-size: 96px;
+	color: #3E4146;
+}
+
+
+/* MAIN //////////////////////////////////////////////////////////////////////////*/
+
+#main {
+	float: left;
+	width: 918px;
+}
+
+#section-header {
+	padding: 1px 0 1px 1px;
+	border-bottom: 1px solid #C9CACB;
+}
+
+#section-header a {
+	float: right;
+	color: #000000;
+	font-weight: bold;
+}
+
+#section-header a:link, #footer a:visited { color: #E7EBED; text-decoration: none; }
+#section-header a:hover, #footer a:active { color: #FF9421; }
+
+#section-header div {
+	background: #E7EBED;
+	padding: 7px 14px 9px;
+}
+#section-header h2 {
+	padding-bottom: 4px;
+	font-size: 20px;
+	color: #282B2E;
+}
+
+#item-list {
+	float: center;
+	width: 900px;
+	height: 100%;
+	margin-left: 11px;
+	margin-top: 20px;
+}
+
+#item-list p {
+	float: center;
+	text-align: left;
+	font-size: 12px;
+	font-weight: normal;
+	padding: 8px 7px 10px;
+	-webkit-border-bottom-right-radius: 8px;
+	-webkit-border-bottom-left-radius: 8px;
+	-moz-border-radius-bottomright: 8px;
+	-moz-border-radius-bottomleft: 8px;
+	border-bottom-right-radius: 8px;
+	border-bottom-left-radius: 8px;
+}
+
+#item-list p b {
+ 	font-weight: bold;
+}
+
+#index-list-item {
+	float: left;
+	min-height: 100px;
+	width: 875px;
+	margin-left: 5px;
+	margin-top: 0px;
+}
+
+#index-list-item h3 {
+	float: center;
+	text-align: left;
+	font-size: 14px;
+	font-weight: bold;
+	padding: 8px 7px 10px;
+	-webkit-border-bottom-right-radius: 8px;
+	-webkit-border-bottom-left-radius: 8px;
+	-moz-border-radius-bottomright: 8px;
+	-moz-border-radius-bottomleft: 8px;
+	border-bottom-right-radius: 8px;
+	border-bottom-left-radius: 8px;
+}
+
+#index-list-item p b {
+ 	font-weight: bold;
+}
+
+#index-list-item .index_item {
+ float: left;
+ width: 100px;
+ margin: 12px 12px 24px;
+ background: #E7EBED;
+ color: #262B2C;
+ padding: 8px 7px 10px;
+ text-shadow: 1px 1px 2px #BBB;
+ -webkit-border-radius: 8px;
+ -moz-border-radius: 8px;
+ border-radius: 8px; 
+ box-shadow: 0 0 4px #333538;
+ text-align: center;
+}
+
+#index-list-item .index_item:nth-child(4n+1) {
+}
+
+#index-list-item .index_item a {
+	float: center;
+	font-size: 12px;
+	font-weight: normal;
+	text-align: center;
+	padding: 2px 2px 2px;
+}
+
+#index-list-item .index_item a:link {
+	color: #FF9421; text-decoration: none; 
+}
+#index-list-item .index_item a:visited {
+	color: #000000; text-decoration: none; 
+}
+#index-list-item .index_item a:hover {
+	color: #FF9421; text-decoration: underline; 
+}
+#index-list-item .index_item a:active {
+	color: #000000; text-decoration: none;
+}
+
+.item-list-item {
+	float: left;
+	min-height: 250px;
+	width: 875px;
+	margin-left: 11px;
+	margin-top: 5px;
+	box-shadow: 0 0 4px #333538;
+}
+
+.item-list-item p {
+	float: center;
+	text-align: left;
+	font-size: 12px;
+	font-weight: normal;
+	padding: 8px 7px 10px;
+	-webkit-border-bottom-right-radius: 8px;
+	-webkit-border-bottom-left-radius: 8px;
+	-moz-border-radius-bottomright: 8px;
+	-moz-border-radius-bottomleft: 8px;
+	border-bottom-right-radius: 8px;
+	border-bottom-left-radius: 8px;
+}
+
+.item-list-item p b {
+ 	font-weight: bold;
+}
+
+.item-list-item .item {
+	float: left;
+	width: 120px;
+	margin: 0 12px 24px;
+	background: #E7EBED;
+	color: #262B2C;
+	text-shadow: 1px 1px 2px #BBB;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;	
+	box-shadow: 0 0 4px #333538;
+}
+
+.item-list-item .item:nth-child(4n+1) {
+
+}
+.item-list-item .item img {
+	padding: 0px 0px 5px;
+	-webkit-border-radius: 8px;
+	/*-moz-border-radius: 8px;*/ /* Until Mozilla support clipping content with border-radius this will remain :( */
+	border-radius: 8px;
+	/*-moz-box-shadow: 0 0 4px #333538;
+	-webkit-box-shadow: 0 0 4px #333538; */
+}
+.item-list-item .item h4 {
+	float: center;
+	font-size: 10px;
+	font-weight: normal;
+	text-align: center;
+	padding: 2px 2px 5px;
+	-webkit-border-bottom-right-radius: 8px;
+	-webkit-border-bottom-left-radius: 8px;
+	-moz-border-radius-bottomright: 8px;
+	-moz-border-radius-bottomleft: 8px;
+	border-bottom-right-radius: 8px;
+	border-bottom-left-radius: 8px;
+}
+
+/* FOOTER //////////////////////////////////////////////////////////////////////////*/
+
+#footer {
+	clear: both;
+	padding: 14px;
+	background: #282B2E;
+	border-top: 5px solid #FF9421;
+	color: #E7EBED;
+}
+#footer a {
+	float: right;
+}
+#footer a:link, #footer a:visited { color: #E7EBED; text-decoration: none; }
+#footer a:hover, #footer a:active { color: #FF9421; }
