@@ -1,73 +1,76 @@
 Plex Reporter Script - Changelog
 --------------------------------
 
-0.1	- Initial release
+0.1	    - Initial release
 
-0.2	- Added numerous safety checks
-	- Added ability to disable performing DNS lookups (for speed)
-	- Fixed issue with cat command and spaces in the logfile name
+0.2	    - Added numerous safety checks
+        - Added ability to disable performing DNS lookups (for speed)
+        - Fixed issue with cat command and spaces in the logfile name
 
-0.2a	- Fixed issue with date not being formatted correctly (hence no reports)
+0.2a    - Fixed issue with date not being formatted correctly (hence no reports)
 
-0.3	- Added support for specifying a date to check
-	- Added a lot more safety checking
-	- Added support for entries where the files have been replaced (avi to mkv etc)
-	- Added a variable to specify the port that Plex is listening on
-	- Removed use of cat command
-	- Removed use of curl (LWP is now used)
+0.3	    - Added support for specifying a date to check
+        - Added a lot more safety checking
+        - Added support for entries where the files have been replaced (avi to mkv etc)
+        - Added a variable to specify the port that Plex is listening on
+        - Removed use of cat command
+        - Removed use of curl (LWP is now used)
         - Changed default logfile name (to the default on Linux)
-	- General code cleanup
+        - General code cleanup
 
-0.4	- Fixed broken SMTP relay setting
-	- Added support for SMTP authentication
+0.4	    - Fixed broken SMTP relay setting
+        - Added support for SMTP authentication
 
-0.5	- Fixed remote clients not being handled
-	- Added support for multiple log files
-	- Added support for using a regex to specify search date
-	- Added an option not to warn if a media file is missing
-	- Remove dependency on external grep/sed (now all done in Perl)
-	- Tidied up the code a bit
+0.5	    - Fixed remote clients not being handled
+        - Added support for multiple log files
+        - Added support for using a regex to specify search date
+        - Added an option not to warn if a media file is missing
+        - Remove dependency on external grep/sed (now all done in Perl)
+        - Tidied up the code a bit
 
-0.6	- Fixed issue with only one media entry per client (bug with 0.5 release)
-	- Added option to disable looking up media info (useful for testing)
+0.6	    - Fixed issue with only one media entry per client (bug with 0.5 release)
+        - Added option to disable looking up media info (useful for testing)
 
-0.7	- Added checking to see if a local PMS is running
-	- Added automatic log entries for Linux/Mac OSX
+0.7	    - Added checking to see if a local PMS is running
+        - Added automatic log entries for Linux/Mac OSX
 
-0.8	- Fixed issue with clients not using DirectPlay
-	- Fixed displaying remote clients connections (hopefully!)
-	- Sorted the output of played files per client
+0.8	    - Fixed issue with clients not using DirectPlay
+        - Fixed displaying remote clients connections (hopefully!)
+        - Sorted the output of played files per client
 
-0.9	- Fixed missing client name in email output
-	- Another fix for displaying remote client connections
+0.9	    - Fixed missing client name in email output
+        - Another fix for displaying remote client connections
 
-0.9a	- Fixed incorrect version number
-	- Changed shebang to use env (makes it work better cross-platform)
-	- Added preliminary support for 0.9.6 reporting
+0.9a    - Fixed incorrect version number
+        - Changed shebang to use env (makes it work better cross-platform)
+        - Added preliminary support for 0.9.6 reporting
 
-0.9b	- Fixed broken regex for 0.9.6 clients (additional port number)
+0.9b    - Fixed broken regex for 0.9.6 clients (additional port number)
 
-0.9c	- Fixed yet another broken regex due to 0.9.6
-	- Added option to enable some debugging
+0.9c    - Fixed yet another broken regex due to 0.9.6
+        - Added option to enable some debugging
 
 0.9d	- Added check to prevent crashing if media entry has been deleted from DB
 
 0.9e	- Fixed Plex-running check (was opening port on 127.0.0.1 not 0.0.0.0)
-	- Lots of whitespace tidying
-	- Got all lines to below 80 characters long (CHECK THIS)
+        - Lots of whitespace tidying
+        - Got all lines to below 80 characters long (CHECK THIS)
 
 --------- The 1.0 Milestone!! ---------
 
-1.0	- So many changes and fixes its scary!
-	- Complete code restructuring!
-	- Added plex-reporter.cfg to hold the options
-		> You no longer need to edit the main script!
-	- Added plex-clients.cfg to make client hostnames more readable
-	- Added HTML output (for pretty reports on your webserver)
-		- Also added simple PHP to show what reports you have
-	- Added XML output (feature request)
-	- Output now shows the Plex name for the media item, not the filename
-	- Simplified and enhanced the Plex connection test
-	- Range-reporting is now much easier and much faster
-	- Added ability to generate HTML reports for a date range
-		- In both single or split report format
+1.0	    - So many changes and fixes its scary!
+        - Complete code restructuring!
+        - Added plex-reporter.cfg to hold the options
+            > You no longer need to edit the main script!
+        - Added plex-clients.cfg to make client hostnames more readable
+        - Added HTML output (for pretty reports on your webserver)
+            - Also added simple PHP to show what reports you have
+            - Added XML output (feature request)
+        - Output now shows the Plex name for the media item, not the filename
+        - Simplified and enhanced the Plex connection test
+        - Range-reporting is now much easier and much faster
+        - Added ability to generate HTML reports for a date range
+            - In both single or split report format
+
+1.0a    - Fixed a bug in a parsing regex (was ignoring some played results)
+        - Added another regex to match the new 0.9.6.1 release with remote clients

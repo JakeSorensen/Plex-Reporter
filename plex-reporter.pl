@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 1.0
+# Version 1.0a
 
 use strict;
 use warnings;
@@ -56,7 +56,7 @@ if ( $CURUSER ) {
 # Newline string, keeps things tidy
 my $NL = "\n";
 my $SRCHDATE;
-my $VERSION = "1.0";
+my $VERSION = "1.0a";
 
 #########################
 ## VARIABLES - DYNAMIC ##
@@ -86,6 +86,7 @@ $plex_opts->{htmlimgwidth}  = "120px";
 $plex_opts->{htmllenlimit}  = 22;
 $plex_opts->{htmlnoimg}     = "/images/nothumb.png";
 $plex_opts->{xmlout}        = 0;
+my $plex_parts;
 
 ###########################
 ## MAIN CODE STARTS HERE ##
@@ -1025,8 +1026,8 @@ sub plex_itemLookup() {
         return $plex_cache->{$tmp_item->{id}};
     }
 
-    # Item isn't in the cache, perform a lookup (if enabled)
-    if ( ! $plex_opts->{medialookup} ) {
+    # Item isn't in the cache, perform a lookup (if enabled or item ID != 0)
+    if ( ! $plex_opts->{medialookup} || $tmp_id eq "0" ) {
         # Connecting to the server is disabled (offline mode)
         $tmp_item->{title}  = "Item: " . $tmp_item->{id};
         $tmp_item->{htmltitle} = "<h4>Item: " . $tmp_item->{id} . "</h4><h4>&nbsp;</h4>";
@@ -1109,6 +1110,12 @@ sub plex_itemLookup() {
         $vid_fname = basename($vid_fname) ||
             &plex_die("Failed to calculate basename from file: " . $vid_fname);
     } 
+
+    # Check if a file part was defined in the XML
+    if ( defined($vid_xml->{Video}->{Media}->{Part}->{id}) ) {
+        # Video part defined, add it to the hash
+        $tmp_item->{part_id} = $vid_xml->{Video}->{Media}->{Part}->{id};
+    }
 
     # Check if the video type is defined in the XML
     if ( ! defined($vid_xml->{Video}->{type}) ) {
@@ -1332,17 +1339,18 @@ sub plex_parseLog() {
         my $t_id = 'identifier=com.plexapp.plugins.library';
         my $t_lm = 'library/metadata';
         my $t_pt = 'X-Plex-Token';
-        # First, check if the log line actually has what we want (regardless of date)
-        # Note: Case-insensitive searches CRIPPLE performance here, avoid them!
-        if ( $log_line !~ /.+progress\?key=[0-9]=+.+state=playing/ &&
+        if ( $log_line !~ /.+progress\?key=[0-9]+.+state=playing/ &&
              $log_line !~ /.+progress\?key=[0-9]+.+$t_pt=/ &&
              $log_line !~ /.+GET\ \/$t_lm\/[0-9]+\?$t_pt=.*\[[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\]/ &&
              $log_line !~ /.+GET\ \/:\/progress\?key=[0-9]+&$t_id&time=[0-9]+/ &&
-             $log_line !~ /.+GET\ \/video\/:\/transcode.+ratingKey=[0-9]+/ 
+             $log_line !~ /.+GET\ \/video\/:\/transcode.+ratingKey=[0-9]+/ &&
+             $log_line !~ /.+GET\ \/library\/metadata\/[0-9]+\?X-Plex-Token/ &&
+             $log_line !~ /.+GET\ \/video\/:\/transcode\/segmented\/start.m3u8.+library\%2fparts\%2f[0-9]+/
         ) {
             # Not interested, wrong type of log line
             next;
         }
+
         # Regex matched, so now check the date is within range
         # Note: We do this after the regex as it can be CPU intensive
         my $tmp_date = $log_line;
@@ -1392,6 +1400,27 @@ sub plex_parseLog() {
         }
 
         # At this point, the line is the right type and within the date range
+        # Regex matched, check if it was just a media lookup (needed for 0.9.6.1)
+        if ( $log_line =~ /.+GET\ \/library\/metadata\/[0-9]+\?X-Plex-Token/ ) {
+            # This is just a media lookup entry, but we need the file part ID from it
+            my $media_id = $log_line;
+            $media_id =~ s/^(.+\/library\/metadata\/)([0-9]+)(.+)$/$2/;
+            # Check the media entry was correctly parsed
+            if ( $media_id eq "" || $media_id =~ /[^0-9]/ ) {
+                # Incorrect parse
+                &plex_die("Failed to parse the log line: ".$log_line." - '".$media_id."'");
+            }
+            # Lookup the part ID for it
+            my $tmp_item = &plex_itemLookup($media_id);
+            if ( ! defined($tmp_item->{part_id}) ) {
+                # For some reason the part id wasnt found, ignore it here
+                next;
+            }
+            # Save the item into the hash (needed for 0.9.6.1 remote devices)
+            $plex_parts->{$tmp_item->{part_id}} = $media_id;
+            next;
+        }
+
         # Right type of line, grab the Date, Media Key, IP address
         my $tmp_line = $log_line;
         if ( $tmp_line =~ /GET\ \/library\/metadata\// ) {
@@ -1412,13 +1441,36 @@ sub plex_parseLog() {
                 # No port number
                 $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ [0-9]+.+\?key=([0-9]+)\&.*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2/;
             }
-        } elsif ( $tmp_line =~ /transcode\/segmented\/start\.m3u/ ) {
+        } elsif ( $tmp_line =~ /transcode\/segmented\/start\.m3u.+ratingKey/ ) {
             # Mobile device, transcoding session, use the ratingKey
             &plex_debug(2,"Type 5 Line Match: $tmp_line");
             if ( $tmp_line =~ /\[[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+\]/ ) {
                 $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ [0-9]+.+\&ratingKey=([0-9]+)\&.+\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):[0-9]+\].*$/$1|$2/;
             } else {
                 $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ [0-9]+.+\&ratingKey=([0-9]+)\&.+\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2/;
+            }
+        } elsif ( $tmp_line =~ /.+GET\ \/video\/:\/transcode\/segmented\/start.m3u8.+library\%2fparts\%2f[0-9]+/ ) {
+            # Plex 0.9.6.1 - yet another new URL format
+            &plex_debug(2, "Type 6 Line Match: $tmp_line");
+            if ( $tmp_line =~ /\[[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+\]/ ) {
+                 $tmp_line =~ s/^.+%2flibrary%2fparts%2f([0-9]+)%2f.+\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):[0-9]+\].*$/$1|$2/;
+            } else {
+                 $tmp_line =~ s/^.+%2flibrary%2fparts%2f([0-9]+)%2f.+\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2/;
+            }
+            # Type 6 lines pass the part, not the media ID, so we have to check the part cache
+            my ($tmp_part, $tmp_ip) = split(/\|/, $tmp_line);
+            if ( $tmp_part =~ /[^0-9]/ ) {
+                &plex_die("Invalid characters found after line split: $tmp_part");
+            }
+            if ( ! defined($tmp_ip) ) {
+                &plex_die("Failed to split the IP address from the line: $tmp_line");
+            }
+            if ( defined($plex_parts->{$tmp_part}) ) {
+                # We have a match, create a new line so we can drop through to the rest of the code
+                $tmp_line = $plex_parts->{$tmp_part}."|".$tmp_ip;
+            } else {
+                # No entry, and no way to lookup, set the media ID to zero
+                $tmp_line = "0|".$tmp_ip;
             }
         } else {
             $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ [0-9]+.+[\?\&]key=([0-9]+).+\[([0-9\.]+)\].+$/$1|$2/;
