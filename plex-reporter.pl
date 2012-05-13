@@ -747,12 +747,14 @@ sub plex_configLoad {
 
     # Now the configuration has been loaded, check if rangesplit mode can work
     # Rangesplit implies HTML mode, so enable it
-    if ( defined($plex_opts->{htmloutfile}) &&
-         defined($plex_opts->{htmlcss}) ) {
-        $plex_opts->{htmlout} = 1;
-    } else {
-        # Rangesplit specified but missing config items
-        &plex_die("Rangesplit mode specified but HTML configuration incomplete");
+    if ( $plex_opts->{rangesplit} ) {
+        if ( defined($plex_opts->{htmloutfile}) &&
+             defined($plex_opts->{htmlcss}) ) {
+            $plex_opts->{htmlout} = int(1);
+        } else {
+            # Rangesplit specified but missing config items
+            &plex_die("Rangesplit mode specified but HTML configuration incomplete");
+        }
     }
     # If the user enabled xml output, check a file was also specified
     if ( $plex_opts->{xmlout} ) {
@@ -973,6 +975,8 @@ sub plex_htmlImgURL {
 sub plex_htmlWrite {
     # Write the HTML file
     &plex_debug(3,"Called plex_htmlWrite");
+    # Sanity check, is html output enabled
+    ( $plex_opts->{htmlout} ) || next;
     # Determine the correct filename to write to
     my $tmp_docname;
     if ( $plex_opts->{htmldate} ) {

@@ -74,3 +74,5 @@ Plex Reporter Script - Changelog
 
 1.0a    - Fixed a bug in a parsing regex (was ignoring some played results)
         - Added another regex to match the new 0.9.6.1 release with remote clients
+
+1.0b    - Fixed missing logic check (HTML output was always enabled)

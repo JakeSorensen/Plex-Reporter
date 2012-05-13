@@ -9,21 +9,22 @@ You can also specify a date to check (rather than todays) if you want, see the u
 Requirements
 ------------
 
-- Plex Media Server 	(tested with 0.9.5.2 on Linux)
-- Perl 			(any 5.x release should work)
-- Data::Dumper		(Perl module, available on most distros)
+- Plex Media Server     (tested with 0.9.5.2 on Linux)
+- Perl                  (any 5.x release should work)
+- Data::Dumper          (Perl module, available on most distros)
 - DateTime              (Perl module, available on most distros)
-- Date::Calc		(Perl module, available on most distros)
-- File::Basename	(Perl module, available on most distros)
-- IO::Socket		(Perl module, available on most distros)
-- LWP			(Perl module, available on most distros)
-- MIME::Lite		(Perl module, available on most distros)
-- XML::Simple		(Perl module, available on most distros)
+- Date::Calc            (Perl module, available on most distros)
+- File::Basename        (Perl module, available on most distros)
+- IO::Socket            (Perl module, available on most distros)
+- LWP                   (Perl module, available on most distros)
+- MIME::Lite            (Perl module, available on most distros)
+- XML::Simple           (Perl module, available on most distros)
 
 The script has been developed for use on a Linux/OSX system. It may even work on a Windows system, however I have no intention of testing that...
 
 If you are planning to run this on a Mac, you will need macports installed, and then the following packages:
 - perl5
+- p5-authen-sasl    (for Secure SMTP)
 - p5-date-calc
 - p5-datetime
 - p5-libwww-perl
