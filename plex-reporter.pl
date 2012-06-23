@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 1.0a
+# Version 1.0d
 
 use strict;
 use warnings;
@@ -56,7 +56,7 @@ if ( $CURUSER ) {
 # Newline string, keeps things tidy
 my $NL = "\n";
 my $SRCHDATE;
-my $VERSION = "1.0a";
+my $VERSION = "1.0d";
 
 #########################
 ## VARIABLES - DYNAMIC ##
@@ -430,7 +430,7 @@ exit 0;
 
 sub plex_checkArgs() {
     # Loop through the cmdline args (if any) and check/use them
-    &plex_debug(3,"Called plex_CheckArgs");
+    &plex_debug(3,"Called plex_checkArgs");
     while ($_[0]) {
         if ( $_[0] eq "-c" || $_[0] eq "--config" ) {
             # Configuration file specified
@@ -1445,7 +1445,8 @@ sub plex_parseLog() {
                 # No port number
                 $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ [0-9]+.+\?key=([0-9]+)\&.*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2/;
             }
-        } elsif ( $tmp_line =~ /transcode\/segmented\/start\.m3u.+ratingKey/ ) {
+        } elsif ( $tmp_line =~ /transcode\/segmented\/start\.m3u.+ratingKey/ ||
+                  $tmp_line =~ /transcode\/segmented\/session\// ) {
             # Mobile device, transcoding session, use the ratingKey
             &plex_debug(2,"Type 5 Line Match: $tmp_line");
             if ( $tmp_line =~ /\[[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+\]/ ) {

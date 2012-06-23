@@ -76,3 +76,7 @@ Plex Reporter Script - Changelog
         - Added another regex to match the new 0.9.6.1 release with remote clients
 
 1.0b    - Fixed missing logic check (HTML output was always enabled)
+
+1.0c    - Minor code cleanup
+
+1.0d    - Added another regex to match the new 0.9.6.3 release with remote clients
