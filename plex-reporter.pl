@@ -1105,14 +1105,22 @@ sub plex_itemLookup() {
         }
         # At this point, we should have the filename for the watched item
         # If not, it was a multi-entry and all files were missing
-        if ( ! $vid_fname ) {
+        if ( $vid_fname ) {
+            # Shorten the filename
+            $vid_fname = basename($vid_fname) ||
+                &plex_die("Failed to calculate basename from file: " . $vid_fname);
+        } else {
             ( $plex_opts->{warnmissing} ) && 
                 print "WARN: None of the files for entry ".$tmp_item->{id}." were found$NL";
-            $vid_fname = $vid_xml->{Video}->{Media}->{$tmp_fkeyname}->{Part}->{file};
+            if ( $tmp_fkeyname ) {
+                $vid_fname = $vid_xml->{Video}->{Media}->{$tmp_fkeyname}->{Part}->{file};
+                # Shorten the filename
+                $vid_fname = basename($vid_fname) ||
+                    &plex_die("Failed to calculate basename from file: " . $vid_fname);
+            } else {
+                $vid_fname = "Missing";
+            }
         }
-        # Shorten the filename
-        $vid_fname = basename($vid_fname) ||
-            &plex_die("Failed to calculate basename from file: " . $vid_fname);
     } 
 
     # Check if a file part was defined in the XML
