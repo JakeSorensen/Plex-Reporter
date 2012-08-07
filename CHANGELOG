@@ -82,3 +82,6 @@ Plex Reporter Script - Changelog
 1.0d    - Added another regex to match the new 0.9.6.3 release with remote clients
 
 1.0e    - Fixed an issue where a media entry with no associated files would cause a crash
+
+1.0f    - Fixed a very large memory issue (where it was consuming gigabytes of ram!)
+        - Added a lot of undef's to help keep the memory usage down

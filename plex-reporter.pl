@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 1.0d
+# Version 1.0f
 
 use strict;
 use warnings;
@@ -40,7 +40,7 @@ my $CURTIME = sprintf(
     (strftime "%M", localtime),
     (strftime "%S", localtime));
 my $CURUSER = $ENV{LOGNAME} || $ENV{USER} || getpwuid($<);
-my @PLEX_LOGFILES = ( 
+my @PLEX_LOGFILES = (
     '/var/lib/plexmediaserver/Library/Application Support' .
     '/Plex Media Server/Logs/Plex Media Server.old.log',
     '/var/lib/plexmediaserver/Library/Application Support' .
@@ -48,15 +48,15 @@ my @PLEX_LOGFILES = (
     'plex.log', 'plex.old.log' );
 # Add potential logfiles for OSX
 if ( $CURUSER ) {
-    push(@PLEX_LOGFILES, 
+    push(@PLEX_LOGFILES,
         "/Users/$CURUSER/Library/Logs/Plex Media Server.old.log");
-    push(@PLEX_LOGFILES, 
+    push(@PLEX_LOGFILES,
         "/Users/$CURUSER/Library/Logs/Plex Media Server.log");
 }
 # Newline string, keeps things tidy
 my $NL = "\n";
 my $SRCHDATE;
-my $VERSION = "1.0d";
+my $VERSION = "1.0f";
 
 #########################
 ## VARIABLES - DYNAMIC ##
@@ -144,6 +144,7 @@ foreach my $plex_lf ( @PLEX_LOGFILES ) {
         # Logfile does not exist
         &plex_debug(2,"Logfile does not exist: '$plex_lf'");
     }
+    undef($plex_lf);
 }
 # Newline for spacing
 print $NL;
@@ -166,7 +167,7 @@ if ( $plex_opts->{rangesplit} ) {
     );
     do {
         $plex_dates->{$tmp_dstart->ymd('-')}->{_ignore_} = 1;
-    } while ( $tmp_dstart->add(days => 1) <= $tmp_dstop ) 
+    } while ( $tmp_dstart->add(days => 1) <= $tmp_dstop )
 }
 
 # Check if any clients connected now the logs have been parsed
@@ -203,6 +204,7 @@ if ( ! keys(%{$plex_dates}) ) {
         $email->{clienttext} .= "- ".scalar(keys %{$tmp_clientlist}).
             " client(s)/user(s) connected to your Plex server between ".
             $BEGINDATE->{nice}." and ".$ENDDATE->{nice}.$NL.$NL;
+        undef($tmp_clientlist);
     } else {
         # Single date, examine the client entries on that date
         # tmp_clientlist should now contain a list of hosts
@@ -215,9 +217,8 @@ if ( ! keys(%{$plex_dates}) ) {
     }
 }
 
-
 # Loop through each date and process the client list accordingly
-# Note: Not all dates will have a client list 
+# Note: Not all dates will have a client list
 # TODO - This loop is too large, abstract as much out as possible
 foreach my $plex_date (sort keys %{$plex_dates}) {
     # Split the plex_date variable for processing
@@ -259,7 +260,7 @@ foreach my $plex_date (sort keys %{$plex_dates}) {
                 &plex_htmlBuildEnd;
                 &plex_htmlWrite;
             }
-            next;            
+            next;
         }
     }
     if ( scalar(keys %{$plex_dates->{$plex_date}}) == 0 ) {
@@ -303,6 +304,8 @@ foreach my $plex_date (sort keys %{$plex_dates}) {
                          " accessed <b>" . $vid_accessed .
                          "</b> item(s) on <b>" . $SRCHDATE->{nice} .
                          "</b></p>$NL" . '<ul style="list-style-type:none;">' . $NL;
+        undef($vid_accessed);
+        undef($tmp_clientname);
 
         # Loop through each of the plex items for this client and date
         foreach my $plex_item (sort keys %{$plex_dates->{$plex_date}->{$plex_client}}) {
@@ -324,6 +327,8 @@ foreach my $plex_date (sort keys %{$plex_dates}) {
                 &plex_die("Found unknown media type after item lookup: ".
                     $tmp_item->{type});
             }
+            undef($tmp_item);
+            undef($plex_item);
         }
         # End of item->viewed_array loop
 
@@ -366,6 +371,7 @@ foreach my $plex_date (sort keys %{$plex_dates}) {
                      $plex_opts->{htmlimgstr} . ' />' .
                      $tmp_item->{title} . "</li>$NL";
              }
+            undef($tmp_item);
         }
         # End of viewed item action loop
 
@@ -382,7 +388,7 @@ foreach my $plex_date (sort keys %{$plex_dates}) {
     # End of client loop (on a specific date)
 
     # If running in rangesplit mode, a separate HTML file should be created for each day
-    if ( $plex_opts->{rangesplit} && 
+    if ( $plex_opts->{rangesplit} &&
          $plex_opts->{htmlout} ) {
         # Build the HTML output
         print "$NL- Constructing the HTML file for this date..$NL";
@@ -391,12 +397,13 @@ foreach my $plex_date (sort keys %{$plex_dates}) {
         &plex_htmlWrite;
     }
 
+    undef($plex_date);
 }
 # End of date loop
 
 
 # Action if HTML output is enabled (and rangesplit is disabled)
-if ( $plex_opts->{htmlout} && 
+if ( $plex_opts->{htmlout} &&
      ! $plex_opts->{rangesplit} ) {
     # Build the HTML output
     print "$NL- Constructing the HTML file..$NL";
@@ -479,7 +486,7 @@ sub plex_checkArgs() {
             if ( ! $_[2] ) {
                 &plex_die("You passed the -r/--range option without specifying a start/finish date");
             }
-            if ( $_[1] !~ /^[1-2][0-9][0-9][0-9]-[0-2][0-9]-[0-3][0-9]$/ || 
+            if ( $_[1] !~ /^[1-2][0-9][0-9][0-9]-[0-2][0-9]-[0-3][0-9]$/ ||
                  $_[2] !~ /^[1-2][0-9][0-9][0-9]-[0-2][0-9]-[0-3][0-9]$/ ){
                 # Invalid date specified
                 &plex_die("Invalid date specified, must be YYYY-MM-DD");
@@ -498,6 +505,7 @@ sub plex_checkArgs() {
             $BEGINDATE->{short} = $tmp_date[0].'-'.$tmp_date[1].'-'.$tmp_date[2];
             $BEGINDATE->{nice}  = Month_to_Text($tmp_date[1], 1) . ' ' .
                 English_Ordinal($tmp_date[2]) . ', ' . $tmp_date[0];
+            undef(@tmp_date);
 
             @tmp_date = split(/-/,$_[2]);
             $ENDDATE->{year}  = $tmp_date[0];
@@ -506,6 +514,7 @@ sub plex_checkArgs() {
             $ENDDATE->{short} = $tmp_date[0].'-'.$tmp_date[1].'-'.$tmp_date[2];
             $ENDDATE->{nice}  = Month_to_Text($tmp_date[1], 1) . ' ' .
                 English_Ordinal($tmp_date[2]) . ', ' . $tmp_date[0];
+            undef(@tmp_date);
             # If -R (not -r) was specified, a report must be generate for each date
             if ( $_[0] eq "-R" ) {
                 $plex_opts->{rangesplit} = 1;
@@ -537,7 +546,7 @@ sub plex_checkArgs() {
             ( defined($_[1]) ) || &plex_die("XML output was enabled but no file was specified");
             $plex_opts->{xmlout}  = 1;
             $plex_opts->{xmlfile} = $_[1];
-            shift; 
+            shift;
         } else {
             # Invalid option
             &plex_showHelp;
@@ -609,6 +618,8 @@ sub plex_clientLoad {
                     $plex_clientmap->{$client_host}->{name} = $client_name;
                     $plex_clientmap->{$client_host}->{htmlname} = "<b>$client_name</b>";
                 }
+                undef($client_host);
+                undef($client_name);
             }
         }
         close (CLIENTSFILE);
@@ -642,6 +653,7 @@ sub plex_clientLookup {
             $tmp_client->{name} = $tmp_host." ($tmp_dnsname)";
             $tmp_client->{htmlname} = '<b>'.$tmp_host.' ('.$tmp_dnsname.')</b>';
         }
+        undef($tmp_dnsname);
     } else {
         # Lookups disabled, default the name
         $tmp_client->{name} = $tmp_host;
@@ -742,6 +754,7 @@ sub plex_configLoad {
             # Standard option, overwrite
             $plex_opts->{$tmp_opt[0]} = $tmp_opt[1];
         }
+        undef(@tmp_opt);
     }
     close (CFG_FILE);
 
@@ -758,7 +771,7 @@ sub plex_configLoad {
     }
     # If the user enabled xml output, check a file was also specified
     if ( $plex_opts->{xmlout} ) {
-        ( defined($plex_opts->{xmlfile}) ) || 
+        ( defined($plex_opts->{xmlfile}) ) ||
             &plex_die("XML output was enabled but no file was specified");
         ( length($plex_opts->{xmlfile}) )  ||
             &plex_die("XML output was enabled but no file was specified");
@@ -775,12 +788,15 @@ sub plex_dateProcess() {
                                 $_[0]->{year},$_[0]->{month},$_[0]->{day});
         if ( $tmp_delta < 0 ) {
             # Date was in the past
+            undef($tmp_delta);
             return 0;
         } elsif ( $tmp_delta > $ENDDATE->{delta} ) {
             # Date was past the end date
+            undef($tmp_delta);
             return 0;
         } else {
             # Date is in range, use it
+            undef($tmp_delta);
             return 1;
         }
     } else {
@@ -789,9 +805,11 @@ sub plex_dateProcess() {
                                 $_[0]->{year},$_[0]->{month},$_[0]->{day});
         if ( $tmp_delta == 0 ) {
             # Same day
+            undef($tmp_delta);
             return 1;
         } else {
             # Not the same day, ignore
+            undef($tmp_delta);
             return 0;
         }
     }
@@ -823,17 +841,18 @@ sub plex_emailSend {
                 Subject  => $email->{subject},
                 Data     => $email->{body}
         );
-        if ( defined($plex_opts->{emailuser}) && 
+        if ( defined($plex_opts->{emailuser}) &&
              defined($plex_opts->{emailpass}) ) {
-            $email->send('smtp', $plex_opts->{emailserver}, 
-                    AuthUser => $plex_opts->{emailuser}, 
-                    AuthPass => $plex_opts->{emailpass}) || 
+            $email->send('smtp', $plex_opts->{emailserver},
+                    AuthUser => $plex_opts->{emailuser},
+                    AuthPass => $plex_opts->{emailpass}) ||
                 &plex_die("Failed to send email");
         } else {
             $email->send('smtp', $plex_opts->{emailserver}) ||
                 &plex_die("Failed to send email");
         }
         print "- Email sent successfully$NL";
+        undef($email);
     }
 }
 
@@ -926,7 +945,7 @@ sub plex_htmlImgString {
             ! defined($plex_opts->{htmlimgheight}) ) {
         # The width has been specified
         $plex_opts->{htmlimgstr} = 'width="'.$plex_opts->{htmlimgwidth}.'" ';
-    } else {             
+    } else {
         # Coding error as the htmlimgwidth variable is set internally
         &plex_die("Missing the htmlimgwidth variable during html generation");
     }
@@ -1000,6 +1019,8 @@ sub plex_htmlWrite {
             # Singular date in use
             $tmp_docname = $tmp_pre."-".$SRCHDATE->{short}.".".$tmp_ext;
         }
+        undef($tmp_ext);
+        undef($tmp_pre);
     } else {
         # Using a static name (the one specified)
         $tmp_docname = $plex_opts->{htmloutfile};
@@ -1012,10 +1033,14 @@ sub plex_htmlWrite {
     print OUTFILE $html->{core}  .$NL;
     print OUTFILE $html->{end}   .$NL;
     close(OUTFILE);
-    # Clean out the HTML buffers (in ase we write multiple pages
+    # Clean out the HTML buffers (in case we write multiple pages
+    delete($html->{begin});
     $html->{begin} = "";
+    delete($html->{core});
     $html->{core}  = "";
+    delete($html->{end});
     $html->{end}   = "";
+    undef($tmp_docname);
 }
 
 sub plex_itemLookup() {
@@ -1027,6 +1052,7 @@ sub plex_itemLookup() {
     # Is the metadata for this ID already stored in the cache
     if ( defined($plex_cache->{$tmp_item->{id}}) ){
         # Return the cache entry
+        undef($tmp_id);
         return $plex_cache->{$tmp_item->{id}};
     }
 
@@ -1038,6 +1064,8 @@ sub plex_itemLookup() {
         $tmp_item->{imgurl} = $plex_opts->{htmlnoimg};
         $tmp_item->{type}   = "unknown";
         # Add the item to the cache
+        ## TODO - Check the cache size - to save eating all of the ram
+        ## TODO - Debug message is cache is full
         $plex_cache->{$tmp_id} = $tmp_item;
         undef($tmp_item);
         # Return the item
@@ -1057,8 +1085,11 @@ sub plex_itemLookup() {
         $tmp_item->{imgurl}    = $plex_opts->{htmlnoimg};
         $tmp_item->{type}      = "unknown";
         # Add the item to the cache
+        ## TODO - Check the cache size - to save eating all of the ram
+        ## TODO - Debug message is cache is full
         $plex_cache->{$tmp_id} = $tmp_item;
         undef($tmp_item);
+        undef($vid_raw);
         # Return the item
         return $plex_cache->{$tmp_id}
     }
@@ -1080,7 +1111,7 @@ sub plex_itemLookup() {
              $plex_opts->{server} eq "localhost" ) {
             if ( ! -e $vid_xml->{Video}->{Media}->{Part}->{file} ) {
                 # File wasn't found on local system
-                ( $plex_opts->{warnmissing} ) && 
+                ( $plex_opts->{warnmissing} ) &&
                     print "WARN: File '" . $vid_xml->{Video}->{Media}->{Part}->{file} .
                         "' was not found on the system$NL";
             }
@@ -1102,6 +1133,7 @@ sub plex_itemLookup() {
                     $vid_fname = $vid_xml->{Video}->{Media}->{$tmp_keyname}->{Part}->{file};
                 }
             }
+            undef($tmp_keyname);
         }
         # At this point, we should have the filename for the watched item
         # If not, it was a multi-entry and all files were missing
@@ -1110,7 +1142,7 @@ sub plex_itemLookup() {
             $vid_fname = basename($vid_fname) ||
                 &plex_die("Failed to calculate basename from file: " . $vid_fname);
         } else {
-            ( $plex_opts->{warnmissing} ) && 
+            ( $plex_opts->{warnmissing} ) &&
                 print "WARN: None of the files for entry ".$tmp_item->{id}." were found$NL";
             if ( $tmp_fkeyname ) {
                 $vid_fname = $vid_xml->{Video}->{Media}->{$tmp_fkeyname}->{Part}->{file};
@@ -1121,7 +1153,8 @@ sub plex_itemLookup() {
                 $vid_fname = "Missing";
             }
         }
-    } 
+        undef($tmp_fkeyname);
+    }
 
     # Check if a file part was defined in the XML
     if ( defined($vid_xml->{Video}->{Media}->{Part}->{id}) ) {
@@ -1148,8 +1181,11 @@ sub plex_itemLookup() {
         $tmp_item->{imgurl} = $plex_opts->{htmlnoimg};
         $tmp_item->{type}   = "unknown";
         # Add the item to the cache
+        ## TODO - Check the cache size - to save eating all of the ram
+        ## TODO - Debug message is cache is full
         $plex_cache->{$tmp_id} = $tmp_item;
         undef($tmp_item);
+        undef($vid_fname);
         # Return the item
         return $plex_cache->{$tmp_id}
     }
@@ -1179,8 +1215,11 @@ sub plex_itemLookup() {
             $tmp_item->{imgurl}  = &plex_htmlImgURL($vid_xml);
             $tmp_item->{type}    = "tv";
             # Add the item to the cache
+            ## TODO - Check the cache size - to save eating all of the ram
+            ## TODO - Debug message is cache is full
             $plex_cache->{$tmp_id} = $tmp_item;
             undef($tmp_item);
+            undef($vid_fname);
             # Return the item
             return $plex_cache->{$tmp_id}
         }
@@ -1188,9 +1227,9 @@ sub plex_itemLookup() {
         # Metadata is present, use it
         &plex_debug(2,"Item ID ".$tmp_item->{id}." has title information in XML, using");
         # Create the new title (non-HTML)
-        $tmp_item->{title} = $vid_xml->{Video}->{grandparentTitle} . 
+        $tmp_item->{title} = $vid_xml->{Video}->{grandparentTitle} .
             " S" . sprintf("%02d", $vid_xml->{Video}->{parentIndex}) .
-            "E" . sprintf("%02d", $vid_xml->{Video}->{index}) . 
+            "E" . sprintf("%02d", $vid_xml->{Video}->{index}) .
             " - " . $vid_xml->{Video}->{title};
         # Set the HTML show/title
         my $tmp_show;
@@ -1218,10 +1257,10 @@ sub plex_itemLookup() {
         # Store the new HTML title
         $tmp_item->{htmltitle} = $tmp_show . $tmp_title;
         # Store the attributes
-        # XXXX why is the title being saved as the video filename?
+        # TODO why is the title being saved as the video filename?
         $tmp_item->{title} = $vid_xml->{Video}->{grandparentTitle} .
             ' S'  . sprintf("%02d", $vid_xml->{Video}->{parentIndex}) .
-            'E'   . sprintf("%02d", $vid_xml->{Video}->{index}) . 
+            'E'   . sprintf("%02d", $vid_xml->{Video}->{index}) .
             ' - ' . $vid_xml->{Video}->{title};
         $tmp_item->{imgurl}  = &plex_htmlImgURL($vid_xml);
         $tmp_item->{show}    = $vid_xml->{Video}->{grandparentTitle};
@@ -1229,8 +1268,12 @@ sub plex_itemLookup() {
         $tmp_item->{episode} = $vid_xml->{Video}->{index};
         $tmp_item->{type}    = "tv";
         # Add the item to the cache
+        ## TODO - Check the cache size - to save eating all of the ram
+        ## TODO - Debug message is cache is full
         $plex_cache->{$tmp_id} = $tmp_item;
         undef($tmp_item);
+        undef($tmp_show);
+        undef($tmp_title);
         # Return the item
         return $plex_cache->{$tmp_id}
     }
@@ -1259,10 +1302,11 @@ sub plex_itemLookup() {
             # Add the item to the cache
             $plex_cache->{$tmp_id} = $tmp_item;
             undef($tmp_item);
+            undef($vid_fname);
             # Return the item
-            return $plex_cache->{$tmp_id}            
+            return $plex_cache->{$tmp_id}
         }
-        
+
         # Store the HTML title
         # If the length is too large, truncate
         if ( length($vid_xml->{Video}->{title}) > $plex_opts->{htmllenlimit} ) {
@@ -1278,8 +1322,11 @@ sub plex_itemLookup() {
         $tmp_item->{imgurl}  = &plex_htmlImgURL($vid_xml);
         $tmp_item->{type}    = "movie";
         # Add the item to the cache
+        ## TODO - Check the cache size - to save eating all of the ram
+        ## TODO - Debug message is cache is full
         $plex_cache->{$tmp_id} = $tmp_item;
         undef($tmp_item);
+        undef($vid_fname);
         # Return the item
         return $plex_cache->{$tmp_id}
     }
@@ -1330,6 +1377,7 @@ sub plex_mediaConnCheck {
         $plex_opts->{server_port}    = $plex_xml->{Server}->{port};
         $plex_opts->{server_id}      = $plex_xml->{Server}->{machineIdentifier};
         $plex_opts->{server_ver}     = $plex_xml->{Server}->{version};
+        undef($plex_xml);
     } else {
         # Media lookup disabled in configuraton
         print "- Media info lookup disabled in configuration$NL";
@@ -1342,9 +1390,10 @@ sub plex_parseLog() {
     # Open the passed logfile and parse usable lines
     &plex_debug(3,"Called plex_parseLog");
     my $tmp_lastdate;
-    open(PLEX_LOG, $_[0]) ||
+    open(PLEX_LOG, '<', $_[0]) ||
         &plex_die("Failed to open logfile for reading: ".$_[0]);
-    foreach my $log_line (<PLEX_LOG>) {
+    while (<PLEX_LOG>) {
+        my $log_line = $_;
         # Remove any newline character
         chomp($log_line);
         # Some vars to make the code somewhat neater
@@ -1360,6 +1409,7 @@ sub plex_parseLog() {
              $log_line !~ /.+GET\ \/video\/:\/transcode\/segmented\/start.m3u8.+library\%2fparts\%2f[0-9]+/
         ) {
             # Not interested, wrong type of log line
+            undef($log_line);
             next;
         }
 
@@ -1381,23 +1431,27 @@ sub plex_parseLog() {
         # Check if it matches a previously stored date (saves calculating the delta)
         if ( defined($tmp_lastdate) ) {
             # A date has already been saved, compare
-            if ( $tmp_ldate->{day}   eq $tmp_lastdate->{day} && 
+            if ( $tmp_ldate->{day}   eq $tmp_lastdate->{day} &&
                  $tmp_ldate->{month} eq $tmp_lastdate->{month} &&
                  $tmp_ldate->{year}  eq $tmp_lastdate->{year} ) {
                 # Stored entry is a match, was it valid
                 if ( ! $tmp_lastdate->{valid} ) {
                     # Date wasn't valid, skip it
+                    undef($tmp_ldate);
+                    undef($log_line);
                     next;
                 }
             } else {
                 # This is a different date entry, check it
                 $tmp_lastdate = $tmp_ldate;
-                if ( &plex_dateProcess($tmp_ldate) ) {
+                undef($tmp_ldate);
+                if ( &plex_dateProcess($tmp_lastdate) ) {
                     # Date is valid
                     $tmp_lastdate->{valid} = 1;
                 } else {
                     # This date isn't valid
                     $tmp_lastdate->{valid} = 0;
+                    undef($log_line);
                     next;
                 }
             }
@@ -1407,6 +1461,8 @@ sub plex_parseLog() {
                 # Date was out of range, ignore
                 $tmp_lastdate = $tmp_ldate;
                 $tmp_lastdate->{valid} = 0;
+                undef($tmp_ldate);
+                undef($log_line);
                 next;
             }
         }
@@ -1426,10 +1482,16 @@ sub plex_parseLog() {
             my $tmp_item = &plex_itemLookup($media_id);
             if ( ! defined($tmp_item->{part_id}) ) {
                 # For some reason the part id wasnt found, ignore it here
+                undef($media_id);
+                undef($tmp_item);
+                undef($log_line);
                 next;
             }
             # Save the item into the hash (needed for 0.9.6.1 remote devices)
             $plex_parts->{$tmp_item->{part_id}} = $media_id;
+            undef($media_id);
+            undef($tmp_item);
+            undef($log_line);
             next;
         }
 
@@ -1502,6 +1564,7 @@ sub plex_parseLog() {
         } elsif ( $tmp_key eq "" || $tmp_ip eq "" ) {
             &plex_regexError($log_line, $tmp_line);
         }
+        undef($tmp_line);
         # Construct tmp_date for simplicity
         $tmp_date = $tmp_ldate->{year}.'-'.$tmp_ldate->{month}.'-'.$tmp_ldate->{day};
         # Remove any potential newline characters from the key/date
@@ -1511,6 +1574,10 @@ sub plex_parseLog() {
             &plex_die("Failed to retrieve required variables from line: $log_line");
         # Store this entry in the plex_dates hash
         $plex_dates->{$tmp_date}->{$tmp_ip}->{$tmp_key} = 1;
+        undef($tmp_date);
+        undef($tmp_key);
+        undef($tmp_ip);
+        undef($log_line);
     }
     # Close the file handle
     close(PLEX_LOG);
@@ -1588,15 +1655,20 @@ sub plex_xmlOut {
                 foreach my $item_key ( sort keys %{$plex_cache->{$xml_viewed}} ) {
                     if ( $item_key eq "htmltitle" ) {
                         # Skip this tag as it breaks XML
+                        undef($item_key);
                         next;
                     }
                     $tmp_xml .= $item_key."=\"".$plex_cache->{$xml_viewed}->{$item_key}."\" ";
+                    undef($item_key);
                 }
                 $tmp_xml .= "/>$NL";
+                undef($xml_viewed);
             }
             $tmp_xml .= "    </client>$NL";
+            undef($xml_client);
         }
         $tmp_xml .= "  </date>$NL";
+        undef($xml_date);
     }
     $tmp_xml .= "</dates>$NL";
 
