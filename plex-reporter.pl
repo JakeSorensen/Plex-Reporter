@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 1.0f
+# Version 1.0g
 
 use strict;
 use warnings;
@@ -56,7 +56,7 @@ if ( $CURUSER ) {
 # Newline string, keeps things tidy
 my $NL = "\n";
 my $SRCHDATE;
-my $VERSION = "1.0f";
+my $VERSION = "1.0g";
 
 #########################
 ## VARIABLES - DYNAMIC ##
@@ -1404,6 +1404,7 @@ sub plex_parseLog() {
              $log_line !~ /.+progress\?key=[0-9]+.+$t_pt=/ &&
              $log_line !~ /.+GET\ \/$t_lm\/[0-9]+\?$t_pt=.*\[[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\]/ &&
              $log_line !~ /.+GET\ \/:\/progress\?key=[0-9]+&$t_id&time=[0-9]+/ &&
+             $log_line !~ /.+GET\ \/:\/progress\?X-Plex-Token=[a-zA-Z0-9]+&key=[0-9]+.*&state=playing/ &&
              $log_line !~ /.+GET\ \/video\/:\/transcode.+ratingKey=[0-9]+/ &&
              $log_line !~ /.+GET\ \/library\/metadata\/[0-9]+\?X-Plex-Token/ &&
              $log_line !~ /.+GET\ \/video\/:\/transcode\/segmented\/start.m3u8.+library\%2fparts\%2f[0-9]+/
@@ -1547,6 +1548,10 @@ sub plex_parseLog() {
                 # No entry, and no way to lookup, set the media ID to zero
                 $tmp_line = "0|".$tmp_ip;
             }
+        } elsif ( $tmp_line =~ /.+GET\ \/:\/progress\?X-Plex-Token=[a-zA-Z0-9]+&key=[0-9]+.*&state=playing\ \[[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+\].*/ ) {
+            # Plex 0.9.6.9 - another URL format
+            &plex_debug(2,"Type 7 Line Match: $tmp_line");
+            $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ .*&key=([0-9]+)\&.*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):[0-9]+\].*$/$1|$2/;
         } else {
             $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ [0-9]+.+[\?\&]key=([0-9]+).+\[([0-9\.]+)\].+$/$1|$2/;
             # Plex 0.9.6 - new URL format

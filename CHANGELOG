@@ -85,3 +85,5 @@ Plex Reporter Script - Changelog
 
 1.0f    - Fixed a very large memory issue (where it was consuming gigabytes of ram!)
         - Added a lot of undef's to help keep the memory usage down
+
+1.0g    - Added another regex to match the 0.9.6.9 release
