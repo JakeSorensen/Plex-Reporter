@@ -90,3 +90,5 @@ Plex Reporter Script - Changelog
 
 1.0h    - Fixed an issue with a null variable
         - Fixed duplication of clients on specific dates
+
+1.0i    - Added initial support for DLNA reporting

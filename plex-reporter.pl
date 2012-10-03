@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 1.0h
+# Version 1.0i
 
 use strict;
 use warnings;
@@ -45,6 +45,10 @@ my @PLEX_LOGFILES = (
     '/Plex Media Server/Logs/Plex Media Server.old.log',
     '/var/lib/plexmediaserver/Library/Application Support' .
     '/Plex Media Server/Logs/Plex Media Server.log',
+    '/var/lib/plexmediaserver/Library/Application Support' .
+    '/Plex Media Server/Logs/Plex DLNA Server.old.log',
+    '/var/lib/plexmediaserver/Library/Application Support' .
+    '/Plex Media Server/Logs/Plex DLNA Server.log',
     'plex.log', 'plex.old.log' );
 # Add potential logfiles for OSX
 if ( $CURUSER ) {
@@ -52,11 +56,15 @@ if ( $CURUSER ) {
         "/Users/$CURUSER/Library/Logs/Plex Media Server.old.log");
     push(@PLEX_LOGFILES,
         "/Users/$CURUSER/Library/Logs/Plex Media Server.log");
+    push(@PLEX_LOGFILES,
+        "/Users/$CURUSER/Library/Logs/Plex DLNA Server.old.log");
+    push(@PLEX_LOGFILES,
+        "/Users/$CURUSER/Library/Logs/Plex DLNA Server.log");
 }
 # Newline string, keeps things tidy
 my $NL = "\n";
 my $SRCHDATE;
-my $VERSION = "1.0h";
+my $VERSION = "1.0i";
 
 #########################
 ## VARIABLES - DYNAMIC ##
@@ -640,8 +648,8 @@ sub plex_clientLookup {
         return $tmp_client;
     }
 
-    # Client IP wasnt mapped, perform a lookup if enabled
-    if ( $plex_opts->{dnslookup} ) {
+    # Client IP wasnt mapped, perform a lookup if enabled and if its not a DLNA host
+    if ( $plex_opts->{dnslookup} && $tmp_host ne "DLNA" ) {
         # Perform a reverse DNS lookup
         $tmp_dnsname = gethostbyaddr(inet_aton($tmp_host), AF_INET);
         if ( ! $tmp_dnsname ) {
@@ -655,7 +663,7 @@ sub plex_clientLookup {
         }
         undef($tmp_dnsname);
     } else {
-        # Lookups disabled, default the name
+        # Lookups disabled or its a DLNA host, default to the name
         $tmp_client->{name} = $tmp_host;
         $tmp_client->{htmlname} = "<b>$tmp_host</b>";
     }
@@ -1407,7 +1415,8 @@ sub plex_parseLog() {
              $log_line !~ /.+GET\ \/:\/progress\?X-Plex-Token=[a-zA-Z0-9]+&key=[0-9]+.*&state=playing/ &&
              $log_line !~ /.+GET\ \/video\/:\/transcode.+ratingKey=[0-9]+/ &&
              $log_line !~ /.+GET\ \/library\/metadata\/[0-9]+\?X-Plex-Token/ &&
-             $log_line !~ /.+GET\ \/video\/:\/transcode\/segmented\/start.m3u8.+library\%2fparts\%2f[0-9]+/
+             $log_line !~ /.+GET\ \/video\/:\/transcode\/segmented\/start.m3u8.+library\%2fparts\%2f[0-9]+/ &&
+             $log_line !~ /.+HTTP\ requesting\ to:.+&ratingKey=.+state=playing/
         ) {
             # Not interested, wrong type of log line
             undef($log_line);
@@ -1552,6 +1561,9 @@ sub plex_parseLog() {
             # Plex 0.9.6.9 - another URL format
             &plex_debug(2,"Type 7 Line Match: $tmp_line");
             $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ .*&key=([0-9]+)\&.*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):[0-9]+\].*$/$1|$2/;
+        } elsif ( $tmp_line =~ /.+HTTP\ requesting\ to:.+ratingKey=.+state=playing/ ) {
+            # Plex DLNA Match
+            $tmp_line =~ s/^.+&ratingKey=([0-9]+).+$/$1|DLNA/;
         } else {
             $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ [0-9]+.+[\?\&]key=([0-9]+).+\[([0-9\.]+)\].+$/$1|$2/;
             # Plex 0.9.6 - new URL format
