@@ -92,3 +92,5 @@ Plex Reporter Script - Changelog
         - Fixed duplication of clients on specific dates
 
 1.0i    - Added initial support for DLNA reporting
+
+1.0j    - Fixed broken date calc introduced in 1.0h release

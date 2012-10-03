@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 1.0i
+# Version 1.0j
 
 use strict;
 use warnings;
@@ -1583,7 +1583,16 @@ sub plex_parseLog() {
         }
         undef($tmp_line);
         # Construct tmp_date for simplicity
-        $tmp_date = $tmp_lastdate->{year}.'-'.$tmp_lastdate->{month}.'-'.$tmp_lastdate->{day};
+        if (defined($tmp_ldate)) {
+            $tmp_date = $tmp_ldate->{year}.'-'.$tmp_ldate->{month}.'-'.$tmp_ldate->{day};
+        } elsif (defined($tmp_lastdate)) {
+            $tmp_date = $tmp_lastdate->{year}.'-'.$tmp_lastdate->{month}.'-'.$tmp_lastdate->{day};
+        } else {
+            # Should never happen
+            print "ERROR: Neither tmp_lastdate or tmp_ldate were defined (should never happen)\n";
+            print "Please email your logfile to stu\@lifeofstu.com\n";
+            exit(1);
+        }
         # Remove any potential newline characters from the key/date
         chomp($tmp_key); chomp($tmp_ip);
         # Check that both the key and ip are populated (not zero length)
