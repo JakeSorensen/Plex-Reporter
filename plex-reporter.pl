@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 1.0g
+# Version 1.0h
 
 use strict;
 use warnings;
@@ -56,7 +56,7 @@ if ( $CURUSER ) {
 # Newline string, keeps things tidy
 my $NL = "\n";
 my $SRCHDATE;
-my $VERSION = "1.0g";
+my $VERSION = "1.0h";
 
 #########################
 ## VARIABLES - DYNAMIC ##
@@ -1571,7 +1571,7 @@ sub plex_parseLog() {
         }
         undef($tmp_line);
         # Construct tmp_date for simplicity
-        $tmp_date = $tmp_ldate->{year}.'-'.$tmp_ldate->{month}.'-'.$tmp_ldate->{day};
+        $tmp_date = $tmp_lastdate->{year}.'-'.$tmp_lastdate->{month}.'-'.$tmp_lastdate->{day};
         # Remove any potential newline characters from the key/date
         chomp($tmp_key); chomp($tmp_ip);
         # Check that both the key and ip are populated (not zero length)

@@ -87,3 +87,6 @@ Plex Reporter Script - Changelog
         - Added a lot of undef's to help keep the memory usage down
 
 1.0g    - Added another regex to match the 0.9.6.9 release
+
+1.0h    - Fixed an issue with a null variable
+        - Fixed duplication of clients on specific dates
