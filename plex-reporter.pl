@@ -2,7 +2,7 @@
 # Plex Reporter Script - stu@lifeofstu.com
 # Licensed under the Simplified BSD License, 2011
 # Copyright 2012, Stuart Hopkins
-# Version 1.0j
+# Version 1.0k
 
 use strict;
 use warnings;
@@ -64,7 +64,7 @@ if ( $CURUSER ) {
 # Newline string, keeps things tidy
 my $NL = "\n";
 my $SRCHDATE;
-my $VERSION = "1.0i";
+my $VERSION = "1.0k";
 
 #########################
 ## VARIABLES - DYNAMIC ##
@@ -1515,16 +1515,16 @@ sub plex_parseLog() {
                 $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ [0-9]+.+GET\ \/library\/metadata\/([0-9]+).*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2/;
                 &plex_debug(2,"Type 2 Line Match: $tmp_line");
             }
-        } elsif ( $tmp_line =~ /X-Plex-Client-Platform/ ) {
-            # Plex 0.9.6 - new URL format
-            &plex_debug(2,"Type 3 Line Match: $tmp_line");
-            if ( $tmp_line =~ /\[[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+\]/ ) {
-                # Port number is present
-	        $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ [0-9]+.+\?key=([0-9]+)\&.*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):[0-9]+\].*$/$1|$2/;
-            } else {
-                # No port number
-                $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ [0-9]+.+\?key=([0-9]+)\&.*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2/;
-            }
+#        } elsif ( $tmp_line =~ /X-Plex-Client-Platform/ ) {
+#            # Plex 0.9.6 - new URL format
+#            &plex_debug(2,"Type 3 Line Match: $tmp_line");
+#            if ( $tmp_line =~ /\[[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+\]/ ) {
+#                # Port number is present
+#	        $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ [0-9]+.+\?key=([0-9]+)\&.*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):[0-9]+\].*$/$1|$2/;
+#            } else {
+#                # No port number
+#                $tmp_line =~ s/^[a-zA-Z]+\ [0-9]+,\ [0-9]+.+\?key=([0-9]+)\&.*\[([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\].*$/$1|$2/;
+#            }
         } elsif ( $tmp_line =~ /transcode\/segmented\/start\.m3u.+ratingKey/ ||
                   $tmp_line =~ /transcode\/segmented\/session\// ) {
             # Mobile device, transcoding session, use the ratingKey
